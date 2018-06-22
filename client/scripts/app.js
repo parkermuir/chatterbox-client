@@ -1,11 +1,13 @@
 // YOUR CODE HERE:
 let app = {};
 
-app.init = () => {
-  $('#main').on('click', '.username', (event) => this.handleUsernameClick());
+app.init = function() {
+  $('#main').on('click', '.username', this.handleUsernameClick);
+
+  $('#send').on('submit', '.submit', this.handleSubmit);
 };
 
-app.send = (msg) => {
+app.send = function(msg) {
   $.ajax({
     url: 'http://parse.nyc.hackreactor.com/chatterbox/classes/messages',
     type: 'POST',
@@ -21,7 +23,7 @@ app.send = (msg) => {
   });
 };
 
-app.fetch = () => {
+app.fetch = function() {
   $.ajax({
     location: 'http://parse.nyc.hackreactor.com/chatterbox/classes/messages',
     type: 'GET',
@@ -35,18 +37,23 @@ app.fetch = () => {
   });
 };
 
-app.clearMessages = () => {
+app.clearMessages = function() {
   $('#chats').html('');
 };
 
-app.renderMessage = (msg) => {
+app.renderMessage = function(msg) {
   $('#chats').append(`<div class='username'>${ msg.username }: ${ msg.text }</div>`); // TODO: escape msg here
 };
 
-app.renderRoom = (roomName) => {
+app.renderRoom = function(roomName) {
   $('#roomSelect').append(`<option value='${roomName}'>${roomName}</option>`);
 };
 
-app.handleUsernameClick = () => {
-  console.log('hi');
+app.handleUsernameClick = function(event) {
+  console.log('usernameClick');
+};
+
+app.handleSubmit = function(event) {
+  console.log('handleSubmit');
+  event.preventDefault();
 };
