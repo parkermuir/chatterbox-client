@@ -42,7 +42,7 @@ app.clearMessages = function() {
 };
 
 app.renderMessage = function(msg) {
-  $('#chats').append(`<div class='username'>${ msg.username }: ${ msg.text }</div>`); // TODO: escape msg here
+  $('#chats').append(`<div><span class='username'>${ msg.username }</span>: <span class='message'>${ msg.text }</span></div>`); // TODO: escape msg here
 };
 
 app.renderRoom = function(roomName) {
