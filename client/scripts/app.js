@@ -2,7 +2,7 @@
 let app = {};
 
 app.init = () => {
-
+  $('#main').on('click', '.username', (event) => this.handleUsernameClick());
 };
 
 app.send = (msg) => {
@@ -33,4 +33,20 @@ app.fetch = () => {
       console.log('chatterbox: Failed to retrieve messages');
     }
   });
+};
+
+app.clearMessages = () => {
+  $('#chats').html('');
+};
+
+app.renderMessage = (msg) => {
+  $('#chats').append(`<div class='username'>${ msg.username }: ${ msg.text }</div>`); // TODO: escape msg here
+};
+
+app.renderRoom = (roomName) => {
+  $('#roomSelect').append(`<option value='${roomName}'>${roomName}</option>`);
+};
+
+app.handleUsernameClick = () => {
+  console.log('hi');
 };
