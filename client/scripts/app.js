@@ -39,6 +39,7 @@ app.fetch = function() {
   $.ajax({
     url: app.server,
     type: 'GET',
+    order: 'createdAt',
     contentType: 'application/json',
     success: (data) => {
       console.log(data, 'data');
@@ -66,7 +67,7 @@ app.clearMessages = function() {
 },
 
 app.renderMessage = function(msg) {
-  $('#chats').append(`<div><span class='username ${ msg.username }'>${ msg.username }</span>: <span class='message'>${ msg.text }</span></div>`); // TODO: escape msg here
+  $('#chats').append(`<div><span class='username ${ msg.username }'>${ msg.username }</span>: <span class='message'>${ app._htmlProtect(msg.text) }</span></div>`); // TODO: escape msg here
 }
 
 app.renderRoom = function(roomName) {
@@ -84,4 +85,9 @@ app.handleSubmit = function(event) {
   var msgRoom = 
   console.log(msgUser);
   // app.send();
+}
+
+app._htmlProtect = function(input) {
+    var protected = new DOMParser().parseFromString(input, 'text/html');
+    return protected.documentElement.textContent;
 }
