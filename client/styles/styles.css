@@ -93,3 +93,18 @@ form input[type=text] {
     cursor: pointer;
 }
 
+#home {
+    display: inline-block;
+    margin-left: 15px
+}
+
+#rooms {
+    display: inline-block
+}
+
+.submit:hover, #home:hover {
+  transform: scale(1.4);
+  margin-left: 15px
+}
+
+

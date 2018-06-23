@@ -7,7 +7,7 @@ $(document).ready(function() {
 let app = {
   server: 'http://parse.nyc.hackreactor.com/chatterbox/classes/messages',
   friends: [],
-
+  currRoom: undefined,
 };
 
 app.init = function() {
@@ -17,6 +17,17 @@ app.init = function() {
     event.preventDefault();
     app.handleSubmit(event);
   });
+
+  $('select').on('change', function(event) {
+    app.currRoom = $(this).val();
+    app.fetch();
+    console.log(app.currRoom);
+  })
+
+  $('#home').on('click', function(event) {
+    app.currRoom = undefined;
+    app.fetch();
+  })
 }
 
 app.send = function(msg) {
@@ -39,19 +50,32 @@ app.fetch = function() {
   $.ajax({
     url: app.server,
     type: 'GET',
-    order: 'createdAt',
+    data: { order: '-createdAt' },
     contentType: 'application/json',
     success: (data) => {
       console.log(data, 'data');
-      _.each(data['results'], (result) => {
+      $('#chats').html('');
+      $('#roomSelect').html('');
+      var renderMessages = data['results'];
+
+      if (app.currRoom !== undefined) {
+        renderMessages = _.filter(data['results'], (result) => {
+          return result['roomname'] === app.currRoom;
+        });
+        console.log(renderMessages);
+      }
+      _.each(renderMessages, (result) => {
         this.renderMessage(result);
       });
+      
       
       _.each(_.uniq(_.map(data['results'], (result) => {
         return result['roomname'];
       })), function(roomName) {
         app.renderRoom(roomName);
       });
+
+      
 
       $('.username').on('click', (event) => app.handleUsernameClick(event));
       console.log('chatterbox: Messages retrieved', data);
@@ -67,24 +91,28 @@ app.clearMessages = function() {
 },
 
 app.renderMessage = function(msg) {
-  $('#chats').append(`<div><span class='username ${ msg.username }'>${ msg.username }</span>: <span class='message'>${ app._htmlProtect(msg.text) }</span></div>`); // TODO: escape msg here
+  $('#chats').append(`<div><span class='username ${ app._htmlProtect(msg.username) }'>${ app._htmlProtect(msg.username) }: ${ app._htmlProtect(msg.text) }</span></div>`); // TODO: escape msg here
 }
 
 app.renderRoom = function(roomName) {
-  $('#roomSelect').append(`<option value='${roomName}'>${roomName}</option>`);
+  $('#roomSelect').append(`<option value='${ app._htmlProtect(roomName) }'>${ app._htmlProtect(roomName) }</option>`);
 }
 
 app.handleUsernameClick = function(event) {
-  $(`.${ event.target.textContent }`).addClass('friend');
+  $(`.username:contains(${ event.target.textContent })`).addClass('friend');
   app.friends.push(event.target.textContent);
 }
 
 app.handleSubmit = function(event) {
   var msgUser = window.location.search.substring(10);
   var msgText = $('#message').val();
-  var msgRoom = 
-  console.log(msgUser);
-  // app.send();
+  var msgRoom = app.currRoom;
+  app.send({
+    username: msgUser,
+    text: msgText,
+    roomname: msgRoom
+  });
+  app.fetch();
 }
 
 app._htmlProtect = function(input) {
