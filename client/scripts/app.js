@@ -1,68 +1,87 @@
 // YOUR CODE HERE:
+$(document).ready(function() {
+  console.log('ready');
+  app.init();
+})
+
 let app = {
-  init: function() {
-    console.log('init');
-    $('#main').on('click', '.username', (event) => app.handleUsernameClick(event));
-  
-    $('#send').on('submit', '.submit', function(event) {
-      event.preventDefault();
-      app.handleSubmit(event);
-    });
-  },
-  
-  send: function(msg) {
-    $.ajax({
-      url: app.server,
-      type: 'POST',
-      data: JSON.stringify(msg),
-      contentType: 'application/json',
-      success: (data) => {
-        console.log('chatterbox: Message sent', data);
-      },
-      error: (data) => {
-        // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-        console.error('chatterbox: Failed to send message', data);
-      }
-    });
-  },
-  
-  fetch: function() {
-    $.ajax({
-      url: app.server,
-      type: 'GET',
-      contentType: 'application/json',
-      success: (data) => {
-        console.log('chatterbox: Messages retrieved');
-      },
-      error: (data) => {
-        console.log('chatterbox: Failed to retrieve messages');
-      }
-    });
-  },
-  
-  clearMessages: function() {
-    $('#chats').html('');
-  },
-  
-  renderMessage: function(msg) {
-    $('#chats').append(`<div><span class='username'>${ msg.username }</span>: <span class='message'>${ msg.text }</span></div>`); // TODO: escape msg here
-  },
-  
-  renderRoom: function(roomName) {
-    $('#roomSelect').append(`<option value='${roomName}'>${roomName}</option>`);
-  },
-  
-  handleUsernameClick: function(event) {
-    $(this).css('font-weight', "Bold");
-  },
-  
-  handleSubmit: function(event) {
-    console.log('handleSubmit');
-  }
+  server: 'http://parse.nyc.hackreactor.com/chatterbox/classes/messages',
+  friends: [],
+
 };
 
-$(document).ready(function() {
-  app.server = 'http://parse.nyc.hackreactor.com/chatterbox/classes/messages';
+app.init = function() {
+  app.fetch();
+    
+  $('form').on('submit', function(event) {
+    event.preventDefault();
+    app.handleSubmit(event);
+  });
+}
 
-  app.init();
-});
+app.send = function(msg) {
+  $.ajax({
+    url: app.server,
+    type: 'POST',
+    data: JSON.stringify(msg),
+    contentType: 'application/json',
+    success: (data) => {
+      console.log('chatterbox: Message sent', data);
+    },
+    error: (data) => {
+      // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+      console.error('chatterbox: Failed to send message', data);
+    }
+  });
+}
+
+app.fetch = function() {
+  $.ajax({
+    url: app.server,
+    type: 'GET',
+    contentType: 'application/json',
+    success: (data) => {
+      console.log(data, 'data');
+      _.each(data['results'], (result) => {
+        this.renderMessage(result);
+      });
+      
+      _.each(_.uniq(_.map(data['results'], (result) => {
+        return result['roomname'];
+      })), function(roomName) {
+        app.renderRoom(roomName);
+      });
+
+      $('.username').on('click', (event) => app.handleUsernameClick(event));
+      console.log('chatterbox: Messages retrieved', data);
+    },
+    error: (data) => {
+      console.log('chatterbox: Failed to retrieve messages');
+    }
+  });
+}
+
+app.clearMessages = function() {
+  $('#chats').html('');
+},
+
+app.renderMessage = function(msg) {
+  $('#chats').append(`<div><span class='username ${ msg.username }'>${ msg.username }</span>: <span class='message'>${ msg.text }</span></div>`); // TODO: escape msg here
+}
+
+app.renderRoom = function(roomName) {
+  $('#roomSelect').append(`<option value='${roomName}'>${roomName}</option>`);
+}
+
+app.handleUsernameClick = function(event) {
+  $(`.${ event.target.textContent }`).addClass('friend');
+  app.friends.push(event.target.textContent);
+}
+
+app.handleSubmit = function(event) {
+  var msgUser = window.location.search.substring(10);
+  var msgText = $('#message').val();
+  var msgRoom = 
+  console.log(msgUser);
+  // app.send();
+}
